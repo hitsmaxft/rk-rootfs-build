@@ -1,9 +1,9 @@
 ## Introduction
-A set of shell scripts that will build GNU/Linux distribution rootfs image
-for rockchip platform.
 
-## Available Distro
-* Debian Stretch (X11)
+A customized set of shell scripts that will build GNU/Linux distribution rootfs image for Rock960A/B/C rockchip platform boards.
+
+## Target Distro
+* Debian Stretch (X11) aarch64
 
 # Usage for 64bit Debian
 Building a base debian system by ubuntu-build-service from linaro.
@@ -34,14 +34,14 @@ Creating the ext4 image(linaro-rootfs.img):
 
 Please apply [those patches](https://github.com/rockchip-linux/rk-rootfs-build/tree/master/packages-patches) to release code base before rebuilding!
 
-## FAQ
+## Troubleshoot
 
 1. noexec or nodev issue
 ```
 /usr/share/debootstrap/functions: line 1450: ..../rootfs/ubuntu-build-service/stretch-desktop-armhf/chroot/test-dev-null: Permission denied
 E: Cannot install into target '/home/foxluo/work3/rockchip/rk_linux/rk3399_linux/rootfs/ubuntu-build-service/stretch-desktop-armhf/chroot' mounted with noexec or nodev
 ```
-    * Solution: 
+* Solution: 
 ```
 mount -o remount,exec,dev xxx (xxx is the mount place), then rebuild it.
 ```
