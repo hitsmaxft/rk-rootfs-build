@@ -14,6 +14,18 @@
 UMS_EN=off
 ADB_EN=off
 MTP_EN=off
+RKUDEV_EN=off
+
+# default VID is rockchip
+VID=0x2207
+PID=0x0009
+
+# rkudev configs.
+USN="0000000000000000"
+VNAME="Rockchip"
+PNAME="RKUDEV"
+BUSMA=500
+RKUDEVFPATH=/sys/kernel/config/usb_gadget/rockchip/functions/rkudev.1
 
 make_config_string()
 {
@@ -42,6 +54,10 @@ parameter_init()
 				UMS_EN=on
 				make_config_string ums
 				;;
+            usb_rkudev_en)
+                RKUDEV_EN=on
+                make_config_string rkudev
+                ;;
 		esac
 	done < $DIR/.usb_config
 
@@ -56,6 +72,9 @@ parameter_init()
 		adb)
 			PID=0x0006
 			;;
+        rkudev)
+            PID=0x0009
+            ;;
 		mtp_adb | adb_mtp)
 			PID=0x0011
 			;;
@@ -67,19 +86,52 @@ parameter_init()
 	esac
 }
 
+apply_vidpid()
+{   
+    while true; do
+        TEST_PID=`cat /sys/kernel/config/usb_gadget/rockchip/idProduct`
+        if [ "$TEST_PID" != $PID ]; then
+            echo $PID > /sys/kernel/config/usb_gadget/rockchip/idProduct
+            sleep 0.25
+        else
+            break
+        fi
+    done
+
+    while true; do
+        TEST_VID=`cat /sys/kernel/config/usb_gadget/rockchip/idVendor`
+        if [ "$TEST_VID" != $VID ]; then
+            echo $VID > /sys/kernel/config/usb_gadget/rockchip/idVendor
+            sleep 0.25
+        else
+            break
+        fi
+    done
+}
+
 configfs_init()
 {
-	mkdir -p /sys/kernel/config/usb_gadget/rockchip -m 0770
-	echo 0x2207 > /sys/kernel/config/usb_gadget/rockchip/idVendor
-	echo $PID > /sys/kernel/config/usb_gadget/rockchip/idProduct
-	mkdir -p /sys/kernel/config/usb_gadget/rockchip/strings/0x409 -m 0770
-	echo "0123456789ABCDEF" > /sys/kernel/config/usb_gadget/rockchip/strings/0x409/serialnumber
-	echo "rockchip"  > /sys/kernel/config/usb_gadget/rockchip/strings/0x409/manufacturer
-	echo "rk3xxx"  > /sys/kernel/config/usb_gadget/rockchip/strings/0x409/product
-	mkdir -p /sys/kernel/config/usb_gadget/rockchip/configs/b.1 -m 0770
-	mkdir -p /sys/kernel/config/usb_gadget/rockchip/configs/b.1/strings/0x409 -m 0770
-	echo 500 > /sys/kernel/config/usb_gadget/rockchip/configs/b.1/MaxPower
-	echo \"$CONFIG_STRING\" > /sys/kernel/config/usb_gadget/rockchip/configs/b.1/strings/0x409/configuration
+    if [ ! -e /sys/kernel/config ];then
+        mount -t configfs none /sys/kernel/config
+    fi
+    if [ ! -e  /sys/kernel/config/usb_gadget/rockchip ];then
+        mkdir -p /sys/kernel/config/usb_gadget/rockchip  -m 0770
+    fi
+    apply_vidpid
+    if [ ! -e /sys/kernel/config/usb_gadget/rockchip/strings/0x409 ];then
+        mkdir -p /sys/kernel/config/usb_gadget/rockchip/strings/0x409   -m 0770
+    fi
+    echo $USN > /sys/kernel/config/usb_gadget/rockchip/strings/0x409/serialnumber
+    echo "$VNAME"  > /sys/kernel/config/usb_gadget/rockchip/strings/0x409/manufacturer
+    echo "$PNAME"  > /sys/kernel/config/usb_gadget/rockchip/strings/0x409/product
+    if [ ! -e /sys/kernel/config/usb_gadget/rockchip/configs/b.1 ];then
+        mkdir -p /sys/kernel/config/usb_gadget/rockchip/configs/b.1  -m 0770
+    fi
+    if [ ! -e /sys/kernel/config/usb_gadget/rockchip/configs/b.1/strings/0x409 ];then
+        mkdir -p /sys/kernel/config/usb_gadget/rockchip/configs/b.1/strings/0x409  -m 0770
+    fi
+    echo $BUSMA > /sys/kernel/config/usb_gadget/rockchip/configs/b.1/MaxPower
+    echo \"$CONFIG_STRING\" > /sys/kernel/config/usb_gadget/rockchip/configs/b.1/strings/0x409/configuration
 }
 
 function_init()
@@ -108,6 +160,15 @@ function_init()
 			ln -s /sys/kernel/config/usb_gadget/rockchip/functions/mtp.gs0 /sys/kernel/config/usb_gadget/rockchip/configs/b.1/mtp.gs0
 		fi
 	fi
+
+    if [ $RKUDEV_EN = on ];then
+        mkdir -p $RKUDEVFPATH
+        if [ -e $RKUDEVFPATH ]; then
+            ln -s $RKUDEVFPATH /sys/kernel/config/usb_gadget/rockchip/configs/b.1/rkudev.1
+        else
+            echo "Warning : $RKUDEVFPATH not createn."
+        fi
+    fi
 }
 
 case "$1" in
@@ -136,6 +197,10 @@ start)
 		start-stop-daemon --start --oknodo --pidfile /var/run/adbd.pid --startas /usr/local/bin/adbd --background
 		sleep 1
 	fi
+
+    if [ $RKUDEV_EN = on ];then
+        sleep 1 && echo "rkudev configured."&
+    fi
 
 	if [ $MTP_EN = on ];then
 		if [ $MTP_EN = on ]; then
