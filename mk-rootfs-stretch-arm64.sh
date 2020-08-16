@@ -50,9 +50,6 @@ fi
 
 # -- adbd --
 sudo cp -rf overlay-debug/usr/local/share/adb/adbd-64 $TARGET_ROOTFS_DIR/usr/local/sbin/adbd
-sudo cp -rf overlay-debug/usr/local/share/adb/S60adbd $TARGET_ROOTFS_DIR/usr/local/sbin
-sudo cp -rf overlay-debug/usr/local/share/adb/libcutils.so $TARGET_ROOTFS_DIR/usr/lib
-sudo cp -rf overlay-debug/usr/local/share/adb/libcrypto.so.1.0.0 $TARGET_ROOTFS_DIR/usr/lib
 
 # -- jenkins dns --
 if [ "$VERSION" == "debug" ] || [ "$VERSION" == "jenkins" ]; then
