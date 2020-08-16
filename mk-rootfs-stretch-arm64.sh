@@ -6,6 +6,7 @@ TARGET_ROOTFS_DIR="binary"
 if [ ! $ARCH ]; then
 	ARCH='arm64'
 fi
+
 if [ ! $VERSION ]; then
 	VERSION="release"
 fi
@@ -69,7 +70,7 @@ echo -e "\033[36m Change root.....................\033[0m"
 sudo cp /usr/bin/qemu-aarch64-static $TARGET_ROOTFS_DIR/usr/bin/
 sudo mount -o bind /dev $TARGET_ROOTFS_DIR/dev
 
-cat <<EOF | sudo chroot $TARGET_ROOTFS_DIR /bin/sh
+cat <<EOF | sudo chroot $TARGET_ROOTFS_DIR /bin/bash
 
 chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper
 apt-get update
