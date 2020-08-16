@@ -99,7 +99,6 @@ apt-get install -y gstreamer1.0-plugins-base gstreamer1.0-tools gstreamer1.0-als
 
 dpkg -i  /packages/video/mpp/*.deb
 dpkg -i  /packages/video/gstreamer/*.deb
-dpkg -i  /packages/workaround/*.deb
 apt-get install -f -y
 
 #------------------libdrm------------
