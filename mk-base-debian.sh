@@ -5,7 +5,7 @@ if [ ! $RELEASE ]; then
 fi
 
 if [ ! $ARCH ]; then
-	ARCH='armhf'
+	ARCH='arm64'
 fi
 
 if [ ! $TARGET ]; then
