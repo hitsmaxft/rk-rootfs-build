@@ -130,8 +130,11 @@ fi
 #dpkg -i  /packages/others/mpv/*
 #apt-get install -f -y
 
-#---------v4l-utils------
+#---------v4l-utils---------
 apt-get install -y v4l-utils
+
+#---------ex-fat------------
+apt-get install exfat-fuse exfat-utils
 
 #---------------Debug-------------- 
 if [ "$VERSION" == "debug" ] || [ "$VERSION" == "jenkins" ] ; then
