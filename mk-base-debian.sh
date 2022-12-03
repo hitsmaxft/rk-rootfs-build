@@ -1,7 +1,8 @@
 #!/bin/bash -e
 
 if [ ! $RELEASE ]; then
-	RELEASE='stretch'
+	#RELEASE='stretch'
+	RELEASE='buster'
 fi
 
 if [ ! $ARCH ]; then
@@ -9,7 +10,8 @@ if [ ! $ARCH ]; then
 fi
 
 if [ ! $TARGET ]; then
-	TARGET='desktop'
+	TARGET='base'
+	#TARGET='desktop'
 fi
 
 if [ -e linaro-$RELEASE-alip-*.tar.gz ]; then
